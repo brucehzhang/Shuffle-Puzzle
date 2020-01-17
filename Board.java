@@ -1,8 +1,10 @@
+import edu.princeton.cs.algs4.StdRandom;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 
 public class Board {
-  private int dimension;
+  private final int dimension;
   private int size;
   private int[] board;
 
@@ -10,8 +12,8 @@ public class Board {
   // where tiles[row][col] = tile at (row, col)
   public Board(int[][] tiles) {
     dimension = tiles.length;
-    board = Math.pow(dimension, 2);
-    size = Math.pow(dimension, 2)
+    board = new int[dimension * dimension];
+    size = dimension * dimension;
     int index = 0;
     for (int i = 0; i < dimension; i++) {
       for (int j = 0; j < dimension; j++) {
@@ -44,13 +46,10 @@ public class Board {
   // number of tiles out of place
   public int hamming() {
     int wrongTiles = 0;
-    for (int i = 0; i < board.length - 1; i++) {
+    for (int i = 0; i < size - 1; i++) {
       if (board[i] != i + 1) {
         wrongTiles++;
       }
-    }
-    if (board[board.length - 1] != 0) {
-      wrongTiles++;
     }
     return wrongTiles;
   }
@@ -58,18 +57,24 @@ public class Board {
   // sum of Manhattan distances between tiles and goal
   public int manhattan() {
     int distance = 0;
-    for (int i = 0; i < board.length; i++) {
+    for (int i = 0; i < size; i++) {
       if (board[i] != i + 1 && board[i] != 0) {
         // column distance
-        distance += Math.abs((board[i] / dimension + 1) - ((i + 1) / dimension + 1));
+        distance += (int) Math.abs(Math.ceil(board[i] / dimension) - Math.ceil((i + 1) / dimension));
         // row distance
+        int boardRow = 0;
         if (board[i] % dimension == 0) {
-          distance += Math.abs(dimension - (i + 1) % dimension);
-        } else if ((i + 1) % dimension == 0) {
-          distance += Math.abs(board[i] % dimension - dimension);
+          boardRow = dimension;
         } else {
-          distance += Math.abs(board[i] % dimension - (i + 1) % dimension);
+          boardRow = board[i] % dimension;
         }
+        int indexRow = 0;
+        if ((i + 1) % dimension == 0) {
+          indexRow = dimension;
+        } else {
+          indexRow = (i + 1) % dimension;
+        }
+        distance += Math.abs(boardRow - indexRow);
       }
     }
     return distance;
@@ -97,19 +102,112 @@ public class Board {
   // all neighboring boards
   public Iterable<Board> neighbors() {
     int index = 0;
-    for (int i = 0; i < dimension; i++) {
-      if (board[i] == 0) {
-        index = i;
+    for (index = 0; index < size; index++) {
+      if (board[index] == 0) {
         break;
       }
     }
+    ArrayList<Board> neighborList = new ArrayList<>();
+    if (index == 0) {
+      neighborList.add(swap(index, index + 1));
+      neighborList.add(swap(index, index + dimension));
+    } else if (size % index == 0) {
+      neighborList.add(swap(index, index + 1));
+      neighborList.add(swap(index, index - dimension));
+      if (size - index != size / dimension) {
+        neighborList.add(swap(index, index + dimension));
+      }
+    } else if (index == dimension) {
+      neighborList.add(swap(index, index - 1));
+      neighborList.add(swap(index, index + dimension));
+    } else if (size % (index + 1) == 0) {
+      neighborList.add(swap(index, index - 1));
+      neighborList.add(swap(index, index - dimension));
+      if (size - (index + 1) != size / dimension) {
+        neighborList.add(swap(index, index + dimension));
+      }
+    } else if (index < dimension) {
+      neighborList.add(swap(index, index - 1));
+      neighborList.add(swap(index, index + 1));
+      neighborList.add(swap(index, index + dimension));
+    } else if (size - index <= dimension) {
+      neighborList.add(swap(index, index - 1));
+      neighborList.add(swap(index, index + 1));
+      neighborList.add(swap(index, index - dimension));
+    } else {
+      neighborList.add(swap(index, index - 1));
+      neighborList.add(swap(index, index + 1));
+      neighborList.add(swap(index, index - dimension));
+      neighborList.add(swap(index, index + dimension));
+    }
+    return neighborList;
+  }
 
+  private Board swap(int a, int b) {
+    int[] clone = board.clone();
+    int first = clone[a];
+    int second = clone[b];
+    clone[a] = second;
+    clone[b] = first;
+    int[][] twoDBoard = new int[dimension][dimension];
+    int index = 0;
+    for (int i = 0; i < dimension; i++) {
+      for (int j = 0; j < dimension; j++) {
+        twoDBoard[i][j] = clone[index];
+        index++;
+      }
+    }
+    return new Board(twoDBoard);
   }
 
   // a board that is obtained by exchanging any pair of tiles
-  public Board twin()
+  public Board twin() {
+    int randomTile = StdRandom.uniform(size);
+
+    while (board[randomTile] == 0) {
+      randomTile = StdRandom.uniform(size);
+    }
+
+    if (randomTile == 0) {
+      if (board[randomTile + 1] != 0) {
+        return swap(randomTile,randomTile + 1);
+      } else {
+        return swap(randomTile, randomTile + dimension);
+      }
+    } else if (dimension % randomTile == 0) {
+      if (board[randomTile + 1] != 0) {
+        return swap(randomTile,randomTile + 1);
+      } else if (size - randomTile != size / dimension) {
+        return swap(randomTile, randomTile + dimension);
+      } else {
+        return swap(randomTile, randomTile - dimension);
+      }
+    } else if (randomTile == dimension) {
+      if (board[randomTile - 1] != 0) {
+        return swap(randomTile,randomTile - 1);
+      } else {
+        return swap(randomTile, randomTile + dimension);
+      }
+    } else if (dimension % (randomTile + 1) == 0) {
+      if (board[randomTile - 1] != 0) {
+        return swap(randomTile,randomTile - 1);
+      } else if (size - (randomTile + 1) != size / dimension){
+        return swap(randomTile, randomTile + dimension);
+      } else {
+        return swap(randomTile, randomTile - dimension);
+      }
+    } else {
+      if (board[randomTile - 1] != 0) {
+        return swap(randomTile,randomTile - 1);
+      } else {
+        return swap(randomTile,randomTile + 1);
+      }
+    }
+  }
 
   // unit testing (not graded)
-  public static void main(String[] args)
+  public static void main(String[] args){
+
+  }
 
 }
