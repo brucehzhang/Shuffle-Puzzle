@@ -1,12 +1,12 @@
-import edu.princeton.cs.algs4.StdRandom;
+
 
 import java.util.Arrays;
 import java.util.ArrayList;
 
 public class Board {
   private final int dimension;
-  private int size;
-  private int[] board;
+  private final int size;
+  private final int[] board;
 
   // create a board from an n-by-n array of tiles,
   // where tiles[row][col] = tile at (row, col)
@@ -60,7 +60,7 @@ public class Board {
     for (int i = 0; i < size; i++) {
       if (board[i] != i + 1 && board[i] != 0) {
         // column distance
-        distance += (int) Math.abs((board[i] - 1) / dimension - i / dimension);
+        distance += Math.abs((board[i] - 1) / dimension - i / dimension);
         // row distance
         distance += Math.abs((board[i] - 1) % dimension - i % dimension);
       }
@@ -70,8 +70,8 @@ public class Board {
 
   // is this board the goal board?
   public boolean isGoal() {
-    for (int i = 0; i < dimension; i++) {
-      if (board[i] != i + 1 && board[i] != i + 1) {
+    for (int i = 0; i < size; i++) {
+      if (board[i] != i + 1 && board[i] != 0) {
         return false;
       }
     }
@@ -150,52 +150,53 @@ public class Board {
 
   // a board that is obtained by exchanging any pair of tiles
   public Board twin() {
-    int randomTile = StdRandom.uniform(size);
+    int[] boardCopy = board.clone();
+    int tile = 0;
 
-    while (board[randomTile] == 0) {
-      randomTile = StdRandom.uniform(size);
+    if (boardCopy[tile] == 0) {
+      tile++;
     }
 
-    if (randomTile == 0) {
-      if (board[randomTile + 1] != 0) {
-        return swap(randomTile, randomTile + 1);
+    if (tile == 0) {
+      if (boardCopy[tile + 1] != 0) {
+        return swap(tile, tile + 1);
       } else {
-        return swap(randomTile, randomTile + dimension);
+        return swap(tile, tile + dimension);
       }
-    } else if (randomTile % dimension == 0) {
-      if (board[randomTile + 1] != 0) {
-        return swap(randomTile, randomTile + 1);
-      } else if (size - randomTile != dimension) {
-        return swap(randomTile, randomTile + dimension);
+    } else if (tile % dimension == 0) {
+      if (boardCopy[tile + 1] != 0) {
+        return swap(tile, tile + 1);
+      } else if (size - tile != dimension) {
+        return swap(tile, tile + dimension);
       } else {
-        return swap(randomTile, randomTile - dimension);
+        return swap(tile, tile - dimension);
       }
-    } else if (randomTile + 1 == dimension) {
-      if (board[randomTile - 1] != 0) {
-        return swap(randomTile, randomTile - 1);
+    } else if (tile + 1 == dimension) {
+      if (boardCopy[tile - 1] != 0) {
+        return swap(tile, tile - 1);
       } else {
-        return swap(randomTile, randomTile + dimension);
+        return swap(tile, tile + dimension);
       }
-    } else if ((randomTile + 1) % dimension == 0) {
-      if (board[randomTile - 1] != 0) {
-        return swap(randomTile, randomTile - 1);
-      } else if ((randomTile + 1) != size) {
-        return swap(randomTile, randomTile + dimension);
+    } else if ((tile + 1) % dimension == 0) {
+      if (boardCopy[tile - 1] != 0) {
+        return swap(tile, tile - 1);
+      } else if ((tile + 1) != size) {
+        return swap(tile, tile + dimension);
       } else {
-        return swap(randomTile, randomTile - dimension);
+        return swap(tile, tile - dimension);
       }
     } else {
-      if (board[randomTile - 1] != 0) {
-        return swap(randomTile, randomTile - 1);
+      if (boardCopy[tile - 1] != 0) {
+        return swap(tile, tile - 1);
       } else {
-        return swap(randomTile, randomTile + 1);
+        return swap(tile, tile + 1);
       }
     }
   }
 
   // unit testing (not graded)
-  public static void main(String[] args){
-
+  public static void main(String[] args) {
+    // Empty
   }
 
 }
