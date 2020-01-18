@@ -60,21 +60,9 @@ public class Board {
     for (int i = 0; i < size; i++) {
       if (board[i] != i + 1 && board[i] != 0) {
         // column distance
-        distance += (int) Math.abs(Math.ceil(board[i] / dimension) - Math.ceil((i + 1) / dimension));
+        distance += (int) Math.abs((board[i] - 1) / dimension - i / dimension);
         // row distance
-        int boardRow = 0;
-        if (board[i] % dimension == 0) {
-          boardRow = dimension;
-        } else {
-          boardRow = board[i] % dimension;
-        }
-        int indexRow = 0;
-        if ((i + 1) % dimension == 0) {
-          indexRow = dimension;
-        } else {
-          indexRow = (i + 1) % dimension;
-        }
-        distance += Math.abs(boardRow - indexRow);
+        distance += Math.abs((board[i] - 1) % dimension - i % dimension);
       }
     }
     return distance;
@@ -82,8 +70,8 @@ public class Board {
 
   // is this board the goal board?
   public boolean isGoal() {
-    for (int i = 0; i < dimension - 1; i++) {
-      if (board[i] != i + 1) {
+    for (int i = 0; i < dimension; i++) {
+      if (board[i] != i + 1 && board[i] != i + 1) {
         return false;
       }
     }
@@ -111,26 +99,26 @@ public class Board {
     if (index == 0) {
       neighborList.add(swap(index, index + 1));
       neighborList.add(swap(index, index + dimension));
-    } else if (size % index == 0) {
+    } else if (index % dimension == 0) {
       neighborList.add(swap(index, index + 1));
       neighborList.add(swap(index, index - dimension));
-      if (size - index != size / dimension) {
+      if (size - index != dimension) {
         neighborList.add(swap(index, index + dimension));
       }
-    } else if (index == dimension) {
+    } else if (index + 1 == dimension) {
       neighborList.add(swap(index, index - 1));
       neighborList.add(swap(index, index + dimension));
-    } else if (size % (index + 1) == 0) {
+    } else if ((index + 1) % dimension == 0) {
       neighborList.add(swap(index, index - 1));
       neighborList.add(swap(index, index - dimension));
-      if (size - (index + 1) != size / dimension) {
+      if (index + 1 != size) {
         neighborList.add(swap(index, index + dimension));
       }
     } else if (index < dimension) {
       neighborList.add(swap(index, index - 1));
       neighborList.add(swap(index, index + 1));
       neighborList.add(swap(index, index + dimension));
-    } else if (size - index <= dimension) {
+    } else if (index >= size - dimension) {
       neighborList.add(swap(index, index - 1));
       neighborList.add(swap(index, index + 1));
       neighborList.add(swap(index, index - dimension));
@@ -170,37 +158,37 @@ public class Board {
 
     if (randomTile == 0) {
       if (board[randomTile + 1] != 0) {
-        return swap(randomTile,randomTile + 1);
+        return swap(randomTile, randomTile + 1);
       } else {
         return swap(randomTile, randomTile + dimension);
       }
-    } else if (dimension % randomTile == 0) {
+    } else if (randomTile % dimension == 0) {
       if (board[randomTile + 1] != 0) {
-        return swap(randomTile,randomTile + 1);
-      } else if (size - randomTile != size / dimension) {
+        return swap(randomTile, randomTile + 1);
+      } else if (size - randomTile != dimension) {
         return swap(randomTile, randomTile + dimension);
       } else {
         return swap(randomTile, randomTile - dimension);
       }
-    } else if (randomTile == dimension) {
+    } else if (randomTile + 1 == dimension) {
       if (board[randomTile - 1] != 0) {
-        return swap(randomTile,randomTile - 1);
+        return swap(randomTile, randomTile - 1);
       } else {
         return swap(randomTile, randomTile + dimension);
       }
-    } else if (dimension % (randomTile + 1) == 0) {
+    } else if ((randomTile + 1) % dimension == 0) {
       if (board[randomTile - 1] != 0) {
-        return swap(randomTile,randomTile - 1);
-      } else if (size - (randomTile + 1) != size / dimension){
+        return swap(randomTile, randomTile - 1);
+      } else if ((randomTile + 1) != size) {
         return swap(randomTile, randomTile + dimension);
       } else {
         return swap(randomTile, randomTile - dimension);
       }
     } else {
       if (board[randomTile - 1] != 0) {
-        return swap(randomTile,randomTile - 1);
+        return swap(randomTile, randomTile - 1);
       } else {
-        return swap(randomTile,randomTile + 1);
+        return swap(randomTile, randomTile + 1);
       }
     }
   }
